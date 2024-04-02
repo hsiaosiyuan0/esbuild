@@ -496,7 +496,7 @@ func Source(unsupportedJSFeatures compat.JSFeature) logger.Source {
 		KeyPath:        logger.Path{Text: "<runtime>"},
 		PrettyPath:     "<runtime>",
 		IdentifierName: "runtime",
-		Contents:       text,
+		Contents:       "",
 	}
 }
 

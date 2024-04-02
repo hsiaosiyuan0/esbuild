@@ -16983,6 +16983,7 @@ func Parse(log logger.Log, source logger.Source, options Options) (result js_ast
 	p.fnOrArrowDataParse.isTopLevel = true
 
 	// Parse the file in the first pass, but do not bind symbols
+	// 第一次解析文件，这里 ast 已经解析出来了
 	stmts := p.parseStmtsUpTo(js_lexer.TEndOfFile, parseStmtOpts{
 		isModuleScope:          true,
 		allowDirectivePrologue: true,

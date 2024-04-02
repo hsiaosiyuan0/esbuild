@@ -89,6 +89,21 @@ The scope tree is not attached to the AST because it's really only needed to pas
 
 This is mostly pretty straightforward except for a few places where the parser has pushed a scope and is in the middle of parsing a declaration only to discover that it's not a declaration after all. This happens in TypeScript when a function is forward-declared without a body, and in JavaScript when it's ambiguous whether a parenthesized expression is an arrow function or not until we reach the `=>` token afterwards. This would be solved by doing three passes instead of two so we finish parsing before starting to set up scopes and declare symbols, but we're trying to do this in just two passes. So instead we call `popAndDiscardScope()` or `popAndFlattenScope()` instead of `popScope()` to modify the scope tree later if our assumptions turn out to be incorrect.
 
+对于 maybe parenthesized expression:
+
+```js
+var a = 1; // scope #0
+(a, function f(c,d) {})
+// scope #1 for parenthesized(kind = fnArgs)
+//   scope #2 for fnArgs
+//     scope #3 for fnBody
+```
+
+对于上面的代码，在解析到括号表达式时，并不能确定其真的是括号表达式还是箭头函数，因此 esbuild 的处理方式是先当成箭头函数处理，于是就创建了一个新的 fnArgs 作用域，当继续往后解析发现不是箭头函数时，则需要将该 fnArgs 移除：
+
+1. 移除该作用域
+2. 将该作用域的子作用域设置为上一步移除作用域的父节点的子节点
+
 ### Constant folding
 
 The constant folding and compile-time definition substitution is pretty minimal but is enough to handle libraries such as React which contain code like this:
